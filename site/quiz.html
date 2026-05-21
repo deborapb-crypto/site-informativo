@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Sustentabilidade</title>
+    <link rel="stylesheet" href="css\style3.css">
+</head>
+
+<body>
+
+<div class="quiz-container">
+    <a href="index.html" class="voltar-btn">← Voltar ao site principal</a>
+    
+    <section id="quiz" class="quiz">
+        <h2>Quiz de Sustentabilidade</h2>
+        <p class="quiz-subtitle">Teste seus conhecimentos sobre tecnologia e meio ambiente</p>
+        
+        <div class="quiz-stats">
+            <span id="questao-numero">Questão 1 de 3</span>
+            <span id="pontuacao"> Pontuação: 0</span>
+        </div>
+        
+        <div class="pergunta-container">
+            <p id="pergunta"></p>
+        </div>
+        
+        <div class="opcoes-container">
+            <button onclick="resposta(1)" id="op1" class="quiz-btn"></button>
+            <button onclick="resposta(2)" id="op2" class="quiz-btn"></button>
+            <button onclick="resposta(3)" id="op3" class="quiz-btn"></button>
+        </div>
+        
+        <div id="feedback" class="feedback">
+            <p id="resultado"></p>
+        </div>
+        
+        <button onclick="reiniciarQuiz()" id="reiniciar-btn" class="reiniciar-btn" style="display: none;">Refazer Quiz</button>
+    </section>
+</div>
+
+<script>
+const perguntas = [
+    {
+        pergunta: "Qual é a melhor forma de descartar eletrônicos?",
+        opcoes: ["Jogar no lixo comum", "Reciclar em pontos específicos", "Enterrar no quintal"],
+        correta: 2,
+        explicacao: "Eletrônicos devem ser levados a pontos de coleta específicos para reciclagem correta!"
+    },
+    {
+        pergunta: "O que ajuda a economizar energia?",
+        opcoes: ["Usar modo de economia de energia", "Deixar aparelhos ligados sempre", "Aumentar o brilho da tela"],
+        correta: 1,
+        explicacao: "O modo economia reduz o consumo de energia e aumenta a vida útil da bateria!"
+    },
+    {
+        pergunta: "Qual atitude é mais sustentável?",
+        opcoes: ["Trocar celular todo ano", "Descartar na rua", "Usar o aparelho até durar mais"],
+        correta: 3,
+        explicacao: "Usar dispositivos por mais tempo reduz o lixo eletrônico e a extração de recursos!"
+    }
+];
+
+let atual = 0;
+let pontuacao = 0;
+let podeResponder = true;
+
+function atualizarStats() {
+    document.getElementById("questao-numero").innerText = `Questão ${atual + 1} de ${perguntas.length}`;
+    document.getElementById("pontuacao").innerHTML = `Pontuação: ${pontuacao}`;
+}
+
+function carregar() {
+    if (atual < perguntas.length) {
+        const perguntaAtual = perguntas[atual];
+        
+        const perguntaElement = document.getElementById("pergunta");
+        perguntaElement.style.animation = "none";
+        setTimeout(() => {
+            perguntaElement.innerText = perguntaAtual.pergunta;
+            perguntaElement.style.animation = "fadeInUp 0.5s ease-out";
+        }, 10);
+        
+        for (let i = 0; i < 3; i++) {
+            const btn = document.getElementById(`op${i+1}`);
+            btn.innerText = perguntaAtual.opcoes[i];
+            btn.style.display = "block";
+            btn.classList.remove("disabled");
+            btn.style.animation = "none";
+            setTimeout(() => {
+                btn.style.animation = "fadeInRight 0.5s ease-out";
+            }, 10);
+        }
+        
+        document.getElementById("reiniciar-btn").style.display = "none";
+        
+        const resultadoElement = document.getElementById("resultado");
+        resultadoElement.innerText = "";
+        resultadoElement.className = "";
+        
+        podeResponder = true;
+        atualizarStats();
+    }
+}
+
+function resposta(escolha) {
+    if (!podeResponder) return;
+    
+    const perguntaAtual = perguntas[atual];
+    const resultadoElement = document.getElementById("resultado");
+    const isCorreta = (escolha === perguntaAtual.correta);
+    
+    podeResponder = false;
+    for (let i = 1; i <= 3; i++) {
+        document.getElementById(`op${i}`).classList.add("disabled");
+    }
+    
+    if (isCorreta) {
+        pontuacao++;
+        resultadoElement.innerText = `CORRETO! ${perguntaAtual.explicacao}`;
+        resultadoElement.className = "resultado-correto";
+        
+        const btnCorreto = document.getElementById(`op${perguntaAtual.correta + 1}`);
+        btnCorreto.style.transform = "scale(1.05)";
+        btnCorreto.style.borderColor = "#4caf50";
+        btnCorreto.style.boxShadow = "0 0 15px rgba(76, 175, 80, 0.5)";
+        
+        atualizarStats();
+    } else {
+        resultadoElement.innerText = `ERRADO! ${perguntaAtual.explicacao}`;
+        resultadoElement.className = "resultado-errado";
+        
+        const btnCorreto = document.getElementById(`op${perguntaAtual.correta + 1}`);
+        btnCorreto.style.transform = "scale(1.02)";
+        btnCorreto.style.borderColor = "#4caf50";
+        btnCorreto.style.backgroundColor = "#e8f5e9";
+        
+        const btnErrado = document.getElementById(`op${escolha + 1}`);
+        btnErrado.style.borderColor = "#f44336";
+        btnErrado.style.backgroundColor = "#ffebee";
+    }
+    
+    atual++;
+    
+    if (atual < perguntas.length) {
+        setTimeout(() => {
+            carregar();
+        }, 2500);
+    } else {
+        setTimeout(() => {
+            finalizarQuiz();
+        }, 2500);
+    }
+}
+
+function finalizarQuiz() {
+    const resultadoElement = document.getElementById("resultado");
+    const pontuacaoFinal = pontuacao;
+    const total = perguntas.length;
+    
+  
+    
+    for (let i = 1; i <= 3; i++) {
+        document.getElementById(`op${i}`).style.display = "none";
+    }
+    
+    document.getElementById("reiniciar-btn").style.display = "block";
+    document.getElementById("reiniciar-btn").style.animation = "pulseGlow 2s ease-in-out infinite";
+}
+
+function reiniciarQuiz() {
+    atual = 0;
+    pontuacao = 0;
+    podeResponder = true;
+    
+    for (let i = 1; i <= 3; i++) {
+        const btn = document.getElementById(`op${i}`);
+        btn.style.transform = "";
+        btn.style.borderColor = "";
+        btn.style.backgroundColor = "";
+        btn.classList.remove("disabled");
+    }
+    
+    carregar();
+    document.getElementById("quiz").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+carregar();
+</script>
+
+</body>
+</html>
